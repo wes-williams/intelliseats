@@ -10,7 +10,7 @@ var express = require('express')
   , passport = require('passport')
   , OAuth2Strategy = require('passport-oauth').OAuth2Strategy
   , config = require('./config')
-  , slcprofile = require('./slcprofile'),
+  , slcprofile = require('./slcprofile')
   , SLC = require('./client/SLC');
 
 var app = express();
@@ -70,6 +70,11 @@ var callbackUrl = process.env.callbackUrl || config.api.oauth_url;
 console.log('authUrl: ',authUrl,' tokenUrl: ',tokenUrl,' clientId: ',clientId,' callbackUrl: ',callbackUrl);
 
 //OAuth config
+SLC_app = new SLC(authUrl, 
+                  clientId, 
+                  clientSecret, 
+                  callbackUrl);
+/*
 passport.use('provider', new OAuth2Strategy({
     authorizationURL: authUrl,
     tokenURL: tokenUrl,
@@ -82,7 +87,7 @@ passport.use('provider', new OAuth2Strategy({
     slcprofile.setName(accessToken);
     //done(err, user);
   }
-));
+));*/
 
 
 // Routes
