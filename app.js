@@ -22,11 +22,11 @@ function getenv(name) {
   return val;
 }
 
-var port = getenv('NODE_PORT');
-console.log('port: '+port)
+var port = process.env.VCAP_APP_PORT || 3000;
+
 
 app.configure(function(){
-  app.set('port', process.env.NODE_PORT || port);
+  app.set('port', port);
   app.set('views', __dirname + '/views');
   app.set('view engine', 'jade');
   app.use(express.bodyParser());
