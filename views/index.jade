@@ -1,5 +1,13 @@
-extends layout
+extends jqmobile
 
 block content
-  h1= title
-  p Welcome to #{title}
+  div(data-role='page')
+    div(data-role='header', data-theme='b')
+      h1(class="studentname") Intelliseats 
+      | <a href="/" data-icon="home" class="ui-btn-left">Home</a>
+      | <a href="/login" rel="external" data-ajax="false" data-icon="grid" class="ui-btn-right">Login</a>
+
+    div(data-role='content', data-theme='b')
+      h2 Seating Chart
+      p #{intro}
+      // put some jqmobile stuff here

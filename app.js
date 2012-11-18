@@ -126,6 +126,7 @@ app.get('/auth/provider/callback', function (req, res) {
         console.log('received token ',token);
         slcprofile.setName('logged in!');
         req.session.message = "logged in";
+        req.session.username = "J Stevenson";
         req.session.token = token;
         res.redirect('/students');
       }
@@ -135,18 +136,6 @@ app.get('/auth/provider/callback', function (req, res) {
   });
 
 });
-
-/*
-app.get('/auth/provider', passport.authenticate('provider'));
-
-app.get('/auth/provider/callback', function(req, res) {
-  slcprofile.setName('blahblee');
-  console.log('what the heck happens here');
-});*/
-  //passport.authenticate('provider', { successRedirect: '/students',
-  //                                    failureRedirect: '/' }));
-
-
 
 function loadUser(req, res, next) {
   if (req.session.message) {
@@ -160,11 +149,14 @@ function loadUser(req, res, next) {
 
 app.get('/students', loadUser, function(req, res) {
   if (req.session.token) {
-    var students = getStudents(req.session.token, function(error, statusCode) {
+    var students = getSections(req.session.token, function(error, statusCode, rawSections) {
       console.log('status code from SLC api: ',statusCode);
+      var sections = JSON.parse(rawSections);
+      console.log(sections[0].links[0];)
     });
 
-    res.render('students', {'title':'Students', displayName: slcprofile.displayName});
+    var currentUser = req.session.username || 'J Stevenson';
+    res.render('students', {'title':'Students', displayName: currentUser});
   }
 });
 
@@ -217,7 +209,7 @@ function getStudents(token, callback) {
     'Authorization': bearer
   };
 
-  var requestUrl = slcApiUri + 'api/rest/v1/home';
+  var requestUrl = slcApiUri + 'api/rest/v1/sections';
   console.log('making a call to ',requestUrl);
 
   var apiOpts = {
@@ -225,7 +217,7 @@ function getStudents(token, callback) {
     uri: requestUrl
   }
 
-  request.get(apiOpts, requestUrl, function(error, response, body) {
+  request.get(apiOpts, function(error, response, body) {
     if (error) {
         console.log('some other req error',error);
         callback(error);
@@ -237,7 +229,8 @@ function getStudents(token, callback) {
       callback("API error");
     }
     
-    callback(null, response.statusCode);
+    console.log(response.body);
+    callback(null, response.statusCode, response.body);
   });
 };
 
