@@ -10,11 +10,6 @@ var express = require('express')
   , passport = require('passport')
   , OAuth2Strategy = require('passport-oauth').OAuth2Strategy;
 
-  6StiF8h7s3 Shared Secret
-The shared secret needed to perform OAuth
-
-Apdq1aSbCY8i36kxpxEkMbpt0Ay7gkXhYiYgyTwwO7Bo04Q5
-
 var app = express();
 
 // Configuration
