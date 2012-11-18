@@ -29,3 +29,15 @@ body {
   height: 20px;
   width: 20px;
 }
+
+.badstudent {
+  background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAG0lEQVQImWP4xMPznwEKkNkMREkQp+oTD89/AMGDElKXnZjsAAAAAElFTkSuQmCC);
+}
+
+.warningstudent {
+
+}
+
+.goodstudent {
+  /*background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAG0lEQVQImWP4xMPznwEKkNkMREkQp+oTD89/AMGDElKXnZjsAAAAAElFTkSuQmCC);*/
+}

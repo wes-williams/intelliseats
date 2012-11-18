@@ -105,6 +105,7 @@ app.get('/oldlogin', function(req, res) {
 
 app.get('/logout', function(req, res) {
   req.session.maxAge = -1;
+  req.session.valid = false;
   req.session.destroy(function(err){
    console.log('session destroyed');
    res.redirect('/');
@@ -149,21 +150,28 @@ function loadUser(req, res, next) {
 
 app.get('/students', loadUser, function(req, res) {
   if (req.session.token) {
-    var students = getSections(req.session.token, function(error, statusCode, rawSections) {
+    var sections = getSections(req.session.token, function(error, statusCode, rawSections) {
       console.log('status code from SLC api: ',statusCode);
-      var sections = JSON.parse(rawSections);
-      console.log(sections[0].links[0]);
+      var returnedSections = JSON.parse(rawSections);
+      console.log(returnedSections[0].links[0]);
+    
+
+      var currentUser = req.session.username || 'J Stevenson';
+
+      //https://api.sandbox.slcedu.org/api/rest/v1/sections/2012di-04e1e054-315c-11e2-ad37-02786541ab34/studentSectionAssociations/students
+      var eigthGrade = "https://api.sandbox.slcedu.org/api/rest/v1/sections/2012di-04e1e054-315c-11e2-ad37-02786541ab34/studentSectionAssociations/students";
+      var students;
+
+      getStudents(req.session.token, eigthGrade, function(err, statusCode, returnedStudents) {
+        //console.log('students ',JSON.parse(rawStudents));
+        students = returnedStudents; 
+        console.log('students: ',students[0]);
+
+        req.session.valid = 'true';
+        res.render('students', {'title':'Seating Chart', 'students': students, 'validSession': req.session.valid, displayName: currentUser});
+      });
+      
     });
-
-    var currentUser = req.session.username || 'J Stevenson';
-
-    //https://api.sandbox.slcedu.org/api/rest/v1/sections/2012di-04e1e054-315c-11e2-ad37-02786541ab34/studentSectionAssociations/students
-    var eigthGrade = "https://api.sandbox.slcedu.org/api/rest/v1/sections/2012di-04e1e054-315c-11e2-ad37-02786541ab34/studentSectionAssociations/students";
-    var students = getStudents(req.session.token, eigthGrade, function(err, statusCode, rawStudents) {
-      console.log('students ',JSON.parse(rawStudents));
-    });
-
-    res.render('students', {'title':'Students', displayName: currentUser});
   }
 });
 
@@ -256,6 +264,7 @@ function getStudents(token, url, callback) {
     headers: apiHeaders,
     uri: url
   }
+  console.log('getting students at ',url);
 
   request.get(apiOpts, function(error, response, body) {
     if (error) {
@@ -269,8 +278,11 @@ function getStudents(token, url, callback) {
       callback("API error");
     }
     
-    console.log(response.body);
-    callback(null, response.statusCode, response.body);
+    var students = JSON.parse(response.body);
+
+    console.log('# of students: ',students.length);
+    console.log('student 0: ', students[0].name.firstName,' ',students[0].name.lastSurname);
+    callback(null, response.statusCode, students);
   });
 };
 

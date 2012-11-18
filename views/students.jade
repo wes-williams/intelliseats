@@ -6,10 +6,21 @@ block content
       h1(class="studentname") Intelliseats 
       | <a href="/" data-icon="home" class="ui-btn-left">Home</a>
       // if token then logout else login
-      | <a href="/login" rel="external" data-ajax="false" data-icon="grid" class="ui-btn-right">Login</a>
+      - if (validSession==='true')
+        | <a href="/logout" rel="external" data-ajax="false" data-icon="grid" class="ui-btn-right">Logout</a>
+      - else
+        | <a href="/login" rel="external" data-ajax="false" data-icon="grid" class="ui-btn-right">Login</a>
 
     div(data-role='content', data-theme='b')
       h2 Welcome back #{displayName}
       
+      // each student
+      ul#sortable
+      each student, index in students
+        - if (student.studentUniqueStateId % 2 == 0)
+          p(class="badstudent") #{student.name.firstName} #{student.name.lastSurname}
+        - else
+          p(class="goodstudent") #{student.name.firstName} #{student.name.lastSurname}
+
       // put some jqmobile stuff here
 
