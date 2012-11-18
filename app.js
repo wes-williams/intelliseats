@@ -153,41 +153,56 @@ app.get('/students', loadUser, function(req, res) {
     var sections = getSections(req.session.token, function(error, statusCode, rawSections) {
       console.log('status code from SLC api: ',statusCode);
       var returnedSections = JSON.parse(rawSections);
-      console.log('first section example ',returnedSections[0].links[0]);
     
       var sectionsLen = returnedSections.length;
-      console.log('looping through ',sectionsLen,' sections');
+      //console.log('looping through ',sectionsLen,' sections');
       var superClass = {};
       for (var i=0; i<sectionsLen; i++) {
 
         var linksLen = returnedSections[i].links.length;
-        console.log('how many links in each section ',linksLen);
+        //console.log('how many links in each section ',linksLen);
 
         var testSection = returnedSections[i];
-        for (var j=0;j<linksLen;j++) {
-          console.log('section ',i,testSection.links[j]);
-          if (testSection.links[j].rel == "getStudents") {
-            superClass.rel = testSection.links[j].rel;
-            superClass.href = testSection.links[j].href;
-          }
-          //var areEqual = string1.toUpperCase() === string2.toUpperCase();
-          if (testSection.uniqueSectionCode === '8th Grade English - Sec 6 ') {
-            superClass.uniqueSectionCode = testSection.uniqueSectionCode;
+
+        if (testSection.id === '2012ls-04e1e055-315c-11e2-ad37-02786541ab34') {
+          superClass.uniqueSectionCode = testSection.uniqueSectionCode;
+          superClass.id = testSection.id
+          superClass.sessionId = testSection.sessionId;
+          
+          for (var j=0;j<linksLen;j++) {
             
+            if (testSection.links[j].rel === "getStudents") {
+              superClass.rel = testSection.links[j].rel;
+              superClass.href = testSection.links[j].href;
+            }
+            // id: 2012ls-04e1e055-315c-11e2-ad37-02786541ab34
+            // sessionId: '2012ic-03b67f58-315c-11e2-ad37-02786541ab34',            
           }
         }
-        console.log('section ',i,' code: *',returnedSections[i].uniqueSectionCode,'* links: ',superClass.rel,' ',superClass.href);
+        //console.log('section ',i,' code: *',superClass.uniqueSectionCode,'* links: ',superClass.rel,' ',superClass.href);
       }
+      /*
+      console.log('Get the students for section '
+                  ,superClass.id
+                  ,' class '
+                  ,superClass.uniqueSectionCode
+                  ,' for '
+                  ,superClass.rel
+                  ,' at '
+                  ,superClass.href);
+      */
+
       var currentUser = req.session.username || 'J Stevenson';
 
       //https://api.sandbox.slcedu.org/api/rest/v1/sections/2012di-04e1e054-315c-11e2-ad37-02786541ab34/studentSectionAssociations/students
-      var eigthGrade = "https://api.sandbox.slcedu.org/api/rest/v1/sections/2012di-04e1e054-315c-11e2-ad37-02786541ab34/studentSectionAssociations/students";
+      //https://api.sandbox.slcedu.org/api/rest/v1/sections/2012ls-04e1e055-315c-11e2-ad37-02786541ab34/studentSectionAssociations/students
+      var eigthGrade = superClass.href;
       var students;
 
       getStudents(req.session.token, eigthGrade, function(err, statusCode, returnedStudents) {
         //console.log('students ',JSON.parse(rawStudents));
         students = returnedStudents; 
-        console.log('students: ',students[0]);
+        //console.log('students: ',students[0]);
 
         req.session.valid = 'true';
         res.render('students', {'title':'Seating Chart', 'students': students, 'validSession': req.session.valid, displayName: currentUser});
@@ -302,8 +317,8 @@ function getStudents(token, url, callback) {
     
     var students = JSON.parse(response.body);
 
-    console.log('# of students: ',students.length);
-    console.log('student 0: ', students[0].name.firstName,' ',students[0].name.lastSurname);
+    //console.log('# of students: ',students.length);
+    //console.log('student 0: ', students[0].name.firstName,' ',students[0].name.lastSurname);
     callback(null, response.statusCode, students);
   });
 };

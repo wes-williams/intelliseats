@@ -26,18 +26,23 @@ body {
 }
 
 .icon {
-  height: 20px;
+  height: 25px;
   width: 20px;
+  padding-right: 0.2em;
 }
 
 .badstudent {
-  background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAG0lEQVQImWP4xMPznwEKkNkMREkQp+oTD89/AMGDElKXnZjsAAAAAElFTkSuQmCC);
+  background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAIklEQVQImWP4wMBw5j0DQ8N7BoaGDwwMZxhgHBjGFEDXAgA93xglAV6k0gAAAABJRU5ErkJggg==);
+  border-radius: 15px;
 }
 
 .warningstudent {
+  background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAIUlEQVQImWP48IThzIcnDDOh+AwDEmfmhycMM7EKoGgBAFFdJ51OSKBBAAAAAElFTkSuQmCC);
+  border-radius: 15px;
 
 }
 
 .goodstudent {
-  background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAG0lEQVQImWNQXibynwEKkNkMREkQp0p5mch/AGYbEL2lO9i4AAAAAElFTkSuQmCC);
+  background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAIUlEQVQImWOQ7Bc/I9Uv0SDVL9Eg2S9+hgHGgWFMAXQtAMouFTmCoQ0gAAAAAElFTkSuQmCC);
+  border-radius: 15px;
 }

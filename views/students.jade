@@ -16,12 +16,24 @@ block content
       
       // each student
       ul#sortable
-      each student, index in students
-        - if (student.studentUniqueStateId % 2 == 0)
-          p(class="badstudent") #{student.name.firstName} #{student.name.lastSurname}
-        - else
-          p(class="goodstudent") #{student.name.firstName} #{student.name.lastSurname}
-          img(src="/images/noun_project_640.svg", style="width: 20px; height: 25px;")
+        each student, index in students
+          - if (student.studentUniqueStateId % 2 == 0)
+            | <li class="ui-state-default ui-shadow badstudent">
+            h3(class="studentname") #{student.name.firstName} #{student.name.lastSurname}
+            img(src="/images/noun_project_3247.svg", class="icon")
+            | </li>
+          - else if (student.name.firstName === "Felipe" || student.name.firstName === "Dominic")
+            | <li class="ui-state-default ui-shadow warningstudent">
+            h3(class="studentname") #{student.name.firstName} #{student.name.lastSurname}
+            img(src="/images/noun_project_3247.svg", class="icon")
+            img(src="/images/noun_project_1260.svg", style="width:25px;height:25px;")
+            | </li>
+          - else
+            | <li id="sortable" class="ui-state-default ui-shadow goodstudent" data-shadow="true">
+            h3(class="studentname") #{student.name.firstName} #{student.name.lastSurname}
+            img(src="/images/noun_project_3247.svg", class="icon")
+            img(src="/images/noun_project_640.svg", class="icon")
+            | </li>
 
       // put some jqmobile stuff here
 
