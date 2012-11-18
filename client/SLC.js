@@ -132,6 +132,7 @@
 					requestUrl = API_url + '/api/oauth/token?redirect_uri=' + oauth_URI
 						+ '&grant_type=authorization_code&client_id=' + client_ID + '&client_secret='
 						+ client_secret + '&code=' + code;
+						console.log('calling requestUrl: ',requestUrl);
 
 					request.get(requestUrl, function(error, response, body) {
 						if (response.statusCode !== 200) {
@@ -153,6 +154,7 @@
 
 				}
 				else {
+					console.log('bad args');
 					return "Invalid arguments";
 				}
 			}

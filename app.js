@@ -118,7 +118,7 @@ app.get('/auth', function(req, res, body) {
 
 app.get('/auth/provider/callback', function (req, res) {
   var code = req.param('code', null);
-  
+  console.log('callback!');
   SLC_app.oauth({code: code}, function (token) {
       if (token !== null || token !== undefined) {
         req.session.tokenId = token;
