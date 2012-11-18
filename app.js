@@ -6,7 +6,14 @@
 var express = require('express')
   , routes = require('./routes')
   , path = require('path')
-  , fs = require('fs');
+  , fs = require('fs')
+  , passport = require('passport')
+  , OAuth2Strategy = require('passport-oauth').OAuth2Strategy;
+
+  6StiF8h7s3 Shared Secret
+The shared secret needed to perform OAuth
+
+Apdq1aSbCY8i36kxpxEkMbpt0Ay7gkXhYiYgyTwwO7Bo04Q5
 
 var app = express();
 
@@ -61,8 +68,18 @@ app.get('/', routes.index);
 app.get('/login', function(req, res) {
   req.session.message = 'Hello World';
   req.session.username = 'lkim';
-  res.render('login', {"title":"Login", 'username':'testUser'});
+  // do some oauth stuff here
+
+  res.render('login', {"title":"Login", 'username':'testUser', 'slcclientid':process.env.clientid});
 });
+
+app.get('/logout', function(req, res) {
+  req.session.maxAge = -1;
+  req.session.destroy(function(err){
+   console.log('session destroyed');
+   res.redirect('/');
+  });
+})
 
 function loadUser(req, res, next) {
   if (req.session.message) {
