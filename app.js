@@ -93,7 +93,7 @@ passport.use('provider', new OAuth2Strategy({
 // Routes
 
 app.get('/', routes.index);
-app.get('/login', function(req, res) {
+app.get('/oldlogin', function(req, res) {
   req.session.message = 'Hello World';
   req.session.username = 'lroslin'; // Nathan Butler?
   slcprofile.setName('login name');
@@ -111,7 +111,7 @@ app.get('/logout', function(req, res) {
 });
 
 
-app.get('/auth', function(req, res, body) {
+app.get('/login', function(req, res, body) {
   var loginURL = SLC_app.getLoginURL();
   res.redirect(loginURL);
 });
@@ -123,6 +123,7 @@ app.get('/auth/provider/callback', function (req, res) {
       if (token !== null || token !== undefined) {
         req.session.tokenId = token;
         slcprofile.setName('logged in!');
+        req.session.message = "logged in";
         res.redirect('/students');
       }
       else {
@@ -150,7 +151,7 @@ function loadUser(req, res, next) {
         req.currentUser = "someUser";
         next();
   } else {
-    res.redirect('/sessions/new');
+    res.redirect('/login');
   }
 }
 
