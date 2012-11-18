@@ -3,7 +3,7 @@
   , "version": "0.0.1"
   , "private": true
   , "engines": {
-    "node": ">= 0.8.9"
+    "node": ">= 0.8.x"
     , "npm":  "1.1.21"
   }
   , "dependencies": {
@@ -14,5 +14,8 @@
     , "oauth2orize": "0.1.0"
     , "request": "2.12.0"
     , "azure": "0.6.7"
+    , "passport": "0.1.15"
+    , "passport-oauth": "0.1.12"
+    , "passport-oauth2-client-password": "0.1.0"
   }
 }

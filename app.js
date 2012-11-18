@@ -43,10 +43,22 @@ app.configure('production', function(){
   app.use(express.errorHandler());
 });
 
-
+var test_data = "";
+function setupData(req,res,next){
+    // do something here
+    test_data = "good data";
+    next();
+}
 // Routes
 
 app.get('/', routes.index);
+//app.get('/login', setupData, routes.login);
+app.get('/login', function(req, res) {
+  res.render('login', {"title":"Please login"});
+});
+
+
+// res.render('view_name.jade', { clients_label: client })
 
 app.listen(app.get('port'));
 console.log("Express server listening on port %d", app.get('port'));
