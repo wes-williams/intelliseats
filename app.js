@@ -152,10 +152,17 @@ app.get('/students', loadUser, function(req, res) {
     var students = getSections(req.session.token, function(error, statusCode, rawSections) {
       console.log('status code from SLC api: ',statusCode);
       var sections = JSON.parse(rawSections);
-      console.log(sections[0].links[0];)
+      console.log(sections[0].links[0]);
     });
 
     var currentUser = req.session.username || 'J Stevenson';
+
+    //https://api.sandbox.slcedu.org/api/rest/v1/sections/2012di-04e1e054-315c-11e2-ad37-02786541ab34/studentSectionAssociations/students
+    var eigthGrade = "https://api.sandbox.slcedu.org/api/rest/v1/sections/2012di-04e1e054-315c-11e2-ad37-02786541ab34/studentSectionAssociations/students";
+    var students = getStudents(req.session.token, eigthGrade, function(err, statusCode, rawStudents) {
+      console.log('students ',JSON.parse(rawStudents));
+    });
+
     res.render('students', {'title':'Students', displayName: currentUser});
   }
 });
@@ -201,7 +208,7 @@ Content-Type: application/vnd.slc+json
 Authorization: bearer oauth_token*
 GET $BASE_URL$/api/rest/v1/home*/
 // callbacks and functions and all that jazz
-function getStudents(token, callback) {
+function getSections(token, callback) {
   var bearer = 'bearer ' + token;
   var apiHeaders = {
     'Accept': 'application/vnd.slc+json',
@@ -229,10 +236,42 @@ function getStudents(token, callback) {
       callback("API error");
     }
     
-    console.log(response.body);
+    //console.log(response.body);
     callback(null, response.statusCode, response.body);
   });
 };
 
+function getStudents(token, url, callback) {
+  var bearer = 'bearer ' + token;
+  var apiHeaders = {
+    'Accept': 'application/vnd.slc+json',
+    'Content-Type': 'application/vnd.slc+json',
+    'Authorization': bearer
+  };
+
+  //var requestUrl = slcApiUri + 'api/rest/v1/students';
+  //console.log('making a call to ',url);
+
+  var apiOpts = {
+    headers: apiHeaders,
+    uri: url
+  }
+
+  request.get(apiOpts, function(error, response, body) {
+    if (error) {
+        console.log('some other req error',error);
+        callback(error);
+        return;
+    }
+
+    if (response.statusCode && response.statusCode !== 200) {
+      console.log('response.statusCode ',response.statusCode)
+      callback("API error");
+    }
+    
+    console.log(response.body);
+    callback(null, response.statusCode, response.body);
+  });
+};
 
 
