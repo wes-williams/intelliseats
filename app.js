@@ -22,8 +22,8 @@ function getenv(name) {
   return val;
 }
 
-var port = process.env.VCAP_APP_PORT || 3000;
-
+var port = process.env.port || getenv('NODE_PORT');
+console.log('port: '+port)
 
 app.configure(function(){
   app.set('port', port);
