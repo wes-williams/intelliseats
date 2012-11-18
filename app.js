@@ -125,6 +125,7 @@ app.get('/auth/provider/callback', function (req, res) {
         console.log('received token ',token);
         slcprofile.setName('logged in!');
         req.session.message = "logged in";
+        req.session.token = token;
         res.redirect('/students');
       }
       else {
@@ -157,7 +158,12 @@ function loadUser(req, res, next) {
 }
 
 app.get('/students', loadUser, function(req, res) {
+  if (req.session.token) {
+    var students = getStudents(req.session.token)
+
   res.render('students', {'title':'Students', displayName: slcprofile.displayName});
+  }
+  
 
 });
 
@@ -169,5 +175,38 @@ app.get('/jqtest', function(req, res) {
 
 app.listen(app.get('port'));
 console.log("Express server listening on port %d", app.get('port'));
+
+var slcApiUri = 'https://api.sandbox.slcedu.org/';
+/*
+Accept: application/vnd.slc+json
+Content-Type: application/vnd.slc+json
+Authorization: bearer oauth_token*
+GET $BASE_URL$/api/rest/v1/home*/
+// callbacks and functions and all that jazz
+function getStudents(token, callback) {
+
+  var apiOpts = {
+    'Accept': 'application/vnd.slc+json',
+    'Content-Type': 'application/vnd.slc+json',
+    'Authorization': 'bearer ' + token;
+  };
+
+  request.get(requestUrl, function(error, response, body) {
+    if (response.statusCode !== 200) {
+      return "API error";
+    }
+    return response.statusCode;
+  });
+
+  var students = locationEnrichment(location, function(err, geolocations) {
+    getYelpPlaces(geolocations[0].city, geolocations[0].state.name, food, function(err, places) {
+      if (err) {
+        callback(err);
+        return;
+      }
+      callback(null, places);
+    });  
+  });
+}
 
 
