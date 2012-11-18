@@ -11,7 +11,8 @@ var express = require('express')
   , OAuth2Strategy = require('passport-oauth').OAuth2Strategy
   , config = require('./config')
   , slcprofile = require('./slcprofile')
-  , SLC = require('./client/SLC');
+  , SLC = require('./client/SLC')
+  , request = require('request');
 
 var app = express();
 
@@ -159,16 +160,41 @@ function loadUser(req, res, next) {
 
 app.get('/students', loadUser, function(req, res) {
   if (req.session.token) {
-    var students = getStudents(req.session.token)
+    var students = getStudents(req.session.token, function(error, statusCode) {
+      console.log('status code from SLC api: ',statusCode);
+    });
 
-  res.render('students', {'title':'Students', displayName: slcprofile.displayName});
+    res.render('students', {'title':'Students', displayName: slcprofile.displayName});
   }
-  
-
 });
 
 app.get('/jqtest', function(req, res) {
   res.render('jqtest', {"test" : "yes" });
+});
+
+app.post('/mail', function(req, res, next) {
+  log(req.body, function() {});
+
+  var message = req.body
+    , recipients = getRecipients(message)
+    , params = getParams(message.text);
+
+  console.log('params', params);
+  res.render('reminder', params);
+  /*getNoms(params, function(err, noms) {
+    if (err) return next(err);
+    res.status(200);
+    res.render('email', {noms: noms, defaultQuery: params.defaultQuery}, function(err, html) {
+      if (err) {
+        console.error('render error', err);
+        next(err);
+      }
+      reply(message, recipients, html, function(err) {
+        if (err) return next(err);
+        res.end();
+      });
+    });
+  });*/
 });
 
 // res.render('view_name.jade', { clients_label: client })
@@ -184,29 +210,36 @@ Authorization: bearer oauth_token*
 GET $BASE_URL$/api/rest/v1/home*/
 // callbacks and functions and all that jazz
 function getStudents(token, callback) {
-
-  var apiOpts = {
+  var bearer = 'bearer ' + token;
+  var apiHeaders = {
     'Accept': 'application/vnd.slc+json',
     'Content-Type': 'application/vnd.slc+json',
-    'Authorization': 'bearer ' + token;
+    'Authorization': bearer
   };
 
-  request.get(requestUrl, function(error, response, body) {
-    if (response.statusCode !== 200) {
-      return "API error";
-    }
-    return response.statusCode;
-  });
+  var requestUrl = slcApiUri + 'api/rest/v1/home';
+  console.log('making a call to ',requestUrl);
 
-  var students = locationEnrichment(location, function(err, geolocations) {
-    getYelpPlaces(geolocations[0].city, geolocations[0].state.name, food, function(err, places) {
-      if (err) {
-        callback(err);
+  var apiOpts = {
+    headers: apiHeaders,
+    uri: requestUrl
+  }
+
+  request.get(apiOpts, requestUrl, function(error, response, body) {
+    if (error) {
+        console.log('some other req error',error);
+        callback(error);
         return;
-      }
-      callback(null, places);
-    });  
+    }
+
+    if (response.statusCode && response.statusCode !== 200) {
+      console.log('response.statusCode ',response.statusCode)
+      callback("API error");
+    }
+    
+    callback(null, response.statusCode);
   });
-}
+};
+
 
 
