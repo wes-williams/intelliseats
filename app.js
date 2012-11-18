@@ -25,12 +25,18 @@ function getenv(name) {
 var port = process.env.PORT || getenv('NODE_PORT');
 console.log('port: '+port)
 
+var store;
 app.configure(function(){
   app.set('port', port);
   app.set('views', __dirname + '/views');
   app.set('view engine', 'jade');
   app.use(express.bodyParser());
   app.use(express.methodOverride());
+  store  = new express.session.MemoryStore;
+  app.use(express.cookieParser());
+  app.use(express.session({ secret: 'randomstringthing123456', 
+                            maxAge : Date.now() + 7200000, // 2h Session lifetime
+                            store: store }))
   app.use(app.router);
   app.use(express.static(__dirname + '/public'));
 });
@@ -52,11 +58,25 @@ function setupData(req,res,next){
 // Routes
 
 app.get('/', routes.index);
-//app.get('/login', setupData, routes.login);
 app.get('/login', function(req, res) {
-  res.render('login', {"title":"Please login"});
+  req.session.message = 'Hello World';
+  req.session.username = 'lkim';
+  res.render('login', {"title":"Login", 'username':'testUser'});
 });
 
+function loadUser(req, res, next) {
+  if (req.session.message) {
+        console.log('got '+req.session.message+' out of the session, age is '+req.session.maxAge);
+        req.currentUser = "someUser";
+        next();
+  } else {
+    res.redirect('/sessions/new');
+  }
+}
+
+app.get('/students', loadUser, function(req, res) {
+  res.render('students', {'title':'Students', username: req.session.username});
+});
 
 // res.render('view_name.jade', { clients_label: client })
 
