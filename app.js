@@ -65,6 +65,7 @@ var clientId = process.env.slcclientid || '12345';
 var clientSecret = process.env.slcclientsecret || 'superSecret';
 var callbackUrl = process.env.callbackUrl || config.api.oauth_url;
 
+console.log('authUrl: ',authUrl,' tokenUrl: ',tokenUrl,' clientId: ',clientId,' callbackUrl: ',callbackUrl);
 
 //OAuth config
 passport.use('provider', new OAuth2Strategy({
