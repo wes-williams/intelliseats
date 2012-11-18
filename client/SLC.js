@@ -60,6 +60,7 @@
 		     * @return SLC login URL
 		     */
 			function getLoginURL() {
+				console.log('API_url',API_url+' clientid: '+client_ID+' URI: '+oauth_URI);
 				return API_url + '/api/oauth/authorize?response_type=code&client_id=' + client_ID + '&redirect_uri=' + oauth_URI;
 			}
 
