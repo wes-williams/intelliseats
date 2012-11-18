@@ -10,7 +10,8 @@ var express = require('express')
   , passport = require('passport')
   , OAuth2Strategy = require('passport-oauth').OAuth2Strategy
   , config = require('./config')
-  , slcprofile = require('./slcprofile');
+  , slcprofile = require('./slcprofile'),
+  , SLC = require('./client/SLC');
 
 var app = express();
 
@@ -104,12 +105,35 @@ app.get('/logout', function(req, res) {
   });
 });
 
+
+app.get('/auth', function(req, res, body) {
+  var loginURL = SLC_app.getLoginURL();
+  res.redirect(loginURL);
+});
+
+app.get('/auth/provider/callback', function (req, res) {
+  var code = req.param('code', null);
+  
+  SLC_app.oauth({code: code}, function (token) {
+      if (token !== null || token !== undefined) {
+        req.session.tokenId = token;
+        slcprofile.setName('logged in!');
+        res.redirect('/students');
+      }
+      else {
+        res.redirect('html/error.html');
+      }
+  });
+
+});
+
+/*
 app.get('/auth/provider', passport.authenticate('provider'));
 
 app.get('/auth/provider/callback', function(req, res) {
   slcprofile.setName('blahblee');
   console.log('what the heck happens here');
-});
+});*/
   //passport.authenticate('provider', { successRedirect: '/students',
   //                                    failureRedirect: '/' }));
 
