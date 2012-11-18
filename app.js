@@ -90,6 +90,7 @@ app.get('/', routes.index);
 app.get('/login', function(req, res) {
   req.session.message = 'Hello World';
   req.session.username = 'lroslin'; // Nathan Butler?
+  slcprofile.setName('login name');
   // do some oauth stuff here
 
   res.render('login', {"title":"Login", 'username':'testUser', 'slcclientid':process.env.slcclientid});
@@ -108,7 +109,7 @@ app.get('/auth/provider', passport.authenticate('provider'));
 app.get('/auth/provider/callback', function(req, res) {
   slcprofile.setName('blahblee');
   console.log('what the heck happens here');
-}
+});
   //passport.authenticate('provider', { successRedirect: '/students',
   //                                    failureRedirect: '/' }));
 
