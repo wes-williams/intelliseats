@@ -59,8 +59,8 @@ function setupData(req,res,next){
     next();
 }
 
-var authUrl = config.api.baseUrl + '/api/oauth/authorize';
-var tokenUrl = config.api.baseUrl + '/api/oauth/token';
+var authUrl = config.api.base_url + '/api/oauth/authorize';
+var tokenUrl = config.api.base_url + '/api/oauth/token';
 var clientId = process.env.slcclientid || '12345';
 var clientSecret = process.env.slcclientsecret || 'superSecret';
 var callbackUrl = process.env.callbackUrl || config.api.oauth_url;
@@ -75,9 +75,8 @@ passport.use('provider', new OAuth2Strategy({
     callbackURL: callbackUrl
   },
   function(accessToken, refreshToken, profile, done) {
-    User.findOrCreate(..., function(err, user) {
-      done(err, user);
-    });
+    console.log('did oauth succeed? '+accessToken+' refresh '+refreshToken+' profile '+profile);
+    //done(err, user);
   }
 ));
 
