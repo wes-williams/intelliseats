@@ -153,9 +153,31 @@ app.get('/students', loadUser, function(req, res) {
     var sections = getSections(req.session.token, function(error, statusCode, rawSections) {
       console.log('status code from SLC api: ',statusCode);
       var returnedSections = JSON.parse(rawSections);
-      console.log(returnedSections[0].links[0]);
+      console.log('first section example ',returnedSections[0].links[0]);
     
+      var sectionsLen = returnedSections.length;
+      console.log('looping through ',sectionsLen,' sections');
+      var superClass = {};
+      for (var i=0; i<sectionsLen; i++) {
 
+        var linksLen = returnedSections[i].links.length;
+        console.log('how many links in each section ',linksLen);
+
+        var testSection = returnedSections[i];
+        for (var j=0;j<linksLen;j++) {
+          console.log('section ',i,testSection.links[j]);
+          if (testSection.links[j].rel == "getStudents") {
+            superClass.rel = testSection.links[j].rel;
+            superClass.href = testSection.links[j].href;
+          }
+          //var areEqual = string1.toUpperCase() === string2.toUpperCase();
+          if (testSection.uniqueSectionCode === '8th Grade English - Sec 6 ') {
+            superClass.uniqueSectionCode = testSection.uniqueSectionCode;
+            
+          }
+        }
+        console.log('section ',i,' code: *',returnedSections[i].uniqueSectionCode,'* links: ',superClass.rel,' ',superClass.href);
+      }
       var currentUser = req.session.username || 'J Stevenson';
 
       //https://api.sandbox.slcedu.org/api/rest/v1/sections/2012di-04e1e054-315c-11e2-ad37-02786541ab34/studentSectionAssociations/students
@@ -225,7 +247,7 @@ function getSections(token, callback) {
   };
 
   var requestUrl = slcApiUri + 'api/rest/v1/sections';
-  console.log('making a call to ',requestUrl);
+  console.log('*** Making a call to ',requestUrl);
 
   var apiOpts = {
     headers: apiHeaders,
