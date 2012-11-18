@@ -22,7 +22,7 @@ function getenv(name) {
   return val;
 }
 
-var port = process.env.port || getenv('NODE_PORT');
+var port = process.env.PORT || getenv('NODE_PORT');
 console.log('port: '+port)
 
 app.configure(function(){
@@ -49,6 +49,6 @@ app.configure('production', function(){
 app.get('/', routes.index);
 
 app.listen(app.get('port'));
-console.log("Express server listening on port %d", process.env.NODE_PORT);
+console.log("Express server listening on port %d", app.get('port'));
 
 
