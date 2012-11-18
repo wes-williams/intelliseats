@@ -118,10 +118,11 @@ app.get('/login', function(req, res, body) {
 
 app.get('/auth/provider/callback', function (req, res) {
   var code = req.param('code', null);
-  console.log('callback!');
+  console.log('received callback with code ',code);
   SLC_app.oauth({code: code}, function (token) {
       if (token !== null || token !== undefined) {
         req.session.tokenId = token;
+        console.log('received token ',token);
         slcprofile.setName('logged in!');
         req.session.message = "logged in";
         res.redirect('/students');

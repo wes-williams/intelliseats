@@ -136,10 +136,12 @@
 
 					request.get(requestUrl, function(error, response, body) {
 						if (response.statusCode !== 200) {
+							console.log('got an error from the API: ',response.statusCode,' ',response.body,' ',error);
 							return "API error";
 						}
 
 						token = JSON.parse(body)['access_token'];
+						console.log('parsed token from the body');
 						util.puts(token);
 						if (token === undefined) {
 							return "Access token is undefined";
