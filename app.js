@@ -8,7 +8,8 @@ var express = require('express')
   , path = require('path')
   , fs = require('fs')
   , passport = require('passport')
-  , OAuth2Strategy = require('passport-oauth').OAuth2Strategy;
+  , OAuth2Strategy = require('passport-oauth').OAuth2Strategy
+  , config = require('./config');
 
 var app = express();
 
@@ -57,12 +58,36 @@ function setupData(req,res,next){
     test_data = "good data";
     next();
 }
+
+var authUrl = config.api.baseUrl + '/api/oauth/authorize';
+var tokenUrl = config.api.baseUrl + '/api/oauth/token';
+var clientId = process.env.slcclientid || '12345';
+var clientSecret = process.env.slcclientsecret || 'superSecret';
+var callbackUrl = process.env.callbackUrl || config.api.oauth_url;
+
+
+//OAuth config
+passport.use('provider', new OAuth2Strategy({
+    authorizationURL: authUrl,
+    tokenURL: tokenUrl,
+    clientID: clientId,
+    clientSecret: clientSecret,
+    callbackURL: callbackUrl
+  },
+  function(accessToken, refreshToken, profile, done) {
+    User.findOrCreate(..., function(err, user) {
+      done(err, user);
+    });
+  }
+));
+
+
 // Routes
 
 app.get('/', routes.index);
 app.get('/login', function(req, res) {
   req.session.message = 'Hello World';
-  req.session.username = 'lkim';
+  req.session.username = 'lroslin'; // Nathan Butler?
   // do some oauth stuff here
 
   res.render('login', {"title":"Login", 'username':'testUser', 'slcclientid':process.env.slcclientid});
@@ -74,7 +99,15 @@ app.get('/logout', function(req, res) {
    console.log('session destroyed');
    res.redirect('/');
   });
-})
+});
+
+app.get('/auth/provider', passport.authenticate('provider'));
+
+app.get('/auth/provider/callback', 
+  passport.authenticate('provider', { successRedirect: '/students',
+                                      failureRedirect: '/' }));
+
+
 
 function loadUser(req, res, next) {
   if (req.session.message) {
