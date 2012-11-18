@@ -65,7 +65,7 @@ app.get('/login', function(req, res) {
   req.session.username = 'lkim';
   // do some oauth stuff here
 
-  res.render('login', {"title":"Login", 'username':'testUser', 'slcclientid':process.env.clientid});
+  res.render('login', {"title":"Login", 'username':'testUser', 'slcclientid':process.env.slcclientid});
 });
 
 app.get('/logout', function(req, res) {
