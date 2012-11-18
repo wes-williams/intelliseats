@@ -70,7 +70,7 @@ var callbackUrl = process.env.callbackUrl || config.api.oauth_url;
 console.log('authUrl: ',authUrl,' tokenUrl: ',tokenUrl,' clientId: ',clientId,' callbackUrl: ',callbackUrl);
 
 //OAuth config
-SLC_app = new SLC(authUrl, 
+SLC_app = new SLC(config.api.base_url, 
                   clientId, 
                   clientSecret, 
                   callbackUrl);
