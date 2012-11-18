@@ -10,7 +10,7 @@ var express = require('express')
   , passport = require('passport')
   , OAuth2Strategy = require('passport-oauth').OAuth2Strategy
   , config = require('./config')
-  , slcProfile = require('./slcProfile');
+  , slcprofile = require('./slcprofile');
 
 var app = express();
 
@@ -78,7 +78,7 @@ passport.use('provider', new OAuth2Strategy({
   },
   function(accessToken, refreshToken, profile, done) {
     console.log('did oauth succeed? '+accessToken+' refresh '+refreshToken+' profile '+profile);
-    slcProfile.setName(profile.displayName);
+    slcprofile.setName(accessToken);
     //done(err, user);
   }
 ));
@@ -122,7 +122,7 @@ function loadUser(req, res, next) {
 }
 
 app.get('/students', loadUser, function(req, res) {
-  res.render('students', {'title':'Students', displayName: slcProfile.displayName});
+  res.render('students', {'title':'Students', displayName: slcprofile.displayName});
 
 });
 
