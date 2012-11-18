@@ -63,9 +63,9 @@ function setupData(req,res,next){
 
 var authUrl = config.api.base_url + '/api/oauth/authorize';
 var tokenUrl = config.api.base_url + '/api/oauth/token';
-var clientId = process.env.slcclientid || '12345';
-var clientSecret = process.env.slcclientsecret || 'superSecret';
-var callbackUrl = process.env.callbackUrl || config.api.oauth_url;
+var clientId = process.env.slcclientid || config.api.client_id;
+var clientSecret = process.env.slcclientsecret || config.api.client_secret;
+var callbackUrl = process.env.callbackUrl || config.api.oauth_uri;
 
 console.log('authUrl: ',authUrl,' tokenUrl: ',tokenUrl,' clientId: ',clientId,' callbackUrl: ',callbackUrl);
 
