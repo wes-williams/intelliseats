@@ -9,7 +9,8 @@ var express = require('express')
   , fs = require('fs')
   , passport = require('passport')
   , OAuth2Strategy = require('passport-oauth').OAuth2Strategy
-  , config = require('./config');
+  , config = require('./config')
+  , slcProfile = require('./slcProfile');
 
 var app = express();
 
@@ -77,6 +78,7 @@ passport.use('provider', new OAuth2Strategy({
   },
   function(accessToken, refreshToken, profile, done) {
     console.log('did oauth succeed? '+accessToken+' refresh '+refreshToken+' profile '+profile);
+    slcProfile.setName(profile.displayName);
     //done(err, user);
   }
 ));
@@ -120,7 +122,12 @@ function loadUser(req, res, next) {
 }
 
 app.get('/students', loadUser, function(req, res) {
-  res.render('students', {'title':'Students', username: req.session.username});
+  res.render('students', {'title':'Students', displayName: slcProfile.displayName});
+
+});
+
+app.get('/jqtest', function(req, res) {
+  res.render('jqtest', {"test" : "yes" });
 });
 
 // res.render('view_name.jade', { clients_label: client })
