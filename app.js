@@ -105,9 +105,12 @@ app.get('/logout', function(req, res) {
 
 app.get('/auth/provider', passport.authenticate('provider'));
 
-app.get('/auth/provider/callback', 
-  passport.authenticate('provider', { successRedirect: '/students',
-                                      failureRedirect: '/' }));
+app.get('/auth/provider/callback', function(req, res) {
+  slcprofile.setName('blahblee');
+  console.log('what the heck happens here');
+}
+  //passport.authenticate('provider', { successRedirect: '/students',
+  //                                    failureRedirect: '/' }));
 
 
 
