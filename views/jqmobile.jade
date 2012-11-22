@@ -14,6 +14,15 @@ html
     script(src='http://code.jquery.com/mobile/1.2.0/jquery.mobile-1.2.0.min.js')
     script(src='javascripts/jquery.ui.touch-punch.min.js')
     script(src="javascripts/jquery.sparkline.js")
+    script
+       $(document).bind('pageinit', function() {
+        $( "#sortable" ).sortable();
+        $( "#sortable" ).disableSelection();
+        $( "#sortable" ).bind( "sortstop", function(event, ui) {
+          $('#sortable').listview('refresh');
+        });
+      });
+
 
   body
     block content
