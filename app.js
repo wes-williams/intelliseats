@@ -65,14 +65,8 @@ app.get('/login', function(req, res, body) {
 
 app.get('/auth/provider/callback', function (req, res) {
   var code = req.param('code', null);
-  //console.log('received callback with code ',code);
   slc.oauth({code: code}, function (token) {
     if (token !== null || token !== undefined) {
-      req.session.tokenId = token;
-      //console.log('received token ',token);
-
-      req.session.message = "logged in";
-      req.session.username = "Linda Kim";
       req.session.token = token;
       res.redirect('/students');
     }
@@ -83,9 +77,15 @@ app.get('/auth/provider/callback', function (req, res) {
 });
 
 function loadUser(req, res, next) {
-  if (req.session.message) {
-     req.currentUser = "someUser";
-     next();
+  if (req.session.token) {
+     if(!req.session.username) {
+       slc.api("/system/session/check","GET",req.session.token,{},{}, function(data) { 
+         req.session.username = data.full_name;
+         next();
+       });
+     } else {
+       next();
+     }
   } else {
     res.redirect('/login');
   }
@@ -104,7 +104,7 @@ app.get('/students', loadUser, function(req, res) {
         }
       }
 
-      var currentUser = req.session.username || 'Guest';
+      var currentUser = req.session.username;
       var students;
       slc.api("/sections/" + selectedSection + "/studentSectionAssociations/students", "GET", req.session.token, {}, {}, function (returnedStudents) {
         students = returnedStudents; 
