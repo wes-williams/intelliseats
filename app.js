@@ -10,7 +10,9 @@ var express = require('express')
 
 var app = express();
 
-// Configuration
+/**
+ * Configuration 
+ */
 
 var store;
 app.configure(function(){
@@ -36,26 +38,15 @@ app.configure('production', function(){
   app.use(express.errorHandler());
 });
 
-var test_data = "";
-function setupData(req,res,next){
-    // do something here
-    test_data = "good data";
-    next();
-}
-
-var authUrl = config.api.base_url + '/api/oauth/authorize';
-var tokenUrl = config.api.base_url + '/api/oauth/token';
-var clientId = process.env.slcclientid || config.api.client_id;
-var clientSecret = process.env.slcclientsecret || config.api.client_secret;
-var callbackUrl = process.env.callbackUrl || config.api.oauth_uri;
-
 //OAuth config
 slc = new SLC(config.api.base_url, 
-                  clientId, 
-                  clientSecret, 
-                  callbackUrl);
+              config.api.client_id, 
+              config.api.client_secret, 
+              config.api.oauth_uri);
 
-// Routes
+/**
+ * Routes 
+ */
 
 app.get('/', routes.index);
 
@@ -63,8 +54,8 @@ app.get('/logout', function(req, res) {
   req.session.maxAge = -1;
   req.session.valid = false;
   req.session.destroy(function(err){
-  res.redirect('/');
-});
+    res.redirect('/');
+  });
 });
 
 app.get('/login', function(req, res, body) {
@@ -76,26 +67,25 @@ app.get('/auth/provider/callback', function (req, res) {
   var code = req.param('code', null);
   //console.log('received callback with code ',code);
   slc.oauth({code: code}, function (token) {
-      if (token !== null || token !== undefined) {
-        req.session.tokenId = token;
-        //console.log('received token ',token);
+    if (token !== null || token !== undefined) {
+      req.session.tokenId = token;
+      //console.log('received token ',token);
 
-        req.session.message = "logged in";
-        req.session.username = "Linda Kim";
-        req.session.token = token;
-        res.redirect('/students');
-      }
-      else {
-        res.redirect('html/error.html');
-      }
+      req.session.message = "logged in";
+      req.session.username = "Linda Kim";
+      req.session.token = token;
+      res.redirect('/students');
+    }
+    else {
+      res.redirect('html/error.html');
+    }
   });
 });
 
 function loadUser(req, res, next) {
   if (req.session.message) {
-        //console.log('got '+req.session.message+' out of the session, age is '+req.session.maxAge);
-        req.currentUser = "someUser";
-        next();
+     req.currentUser = "someUser";
+     next();
   } else {
     res.redirect('/login');
   }
@@ -103,23 +93,18 @@ function loadUser(req, res, next) {
 
 app.get('/students', loadUser, function(req, res) {
   if (req.session.token) {
-
     slc.api("/sections", "GET", req.session.token, {}, {}, function (returnedSections) {
-      
       var selectedSection; // still smoke and mirrors
       var sectionsLen = returnedSections.length;
       for (var i=0; i<sectionsLen; i++) {
         selectedSection = returnedSections[i].id;
-	console.log('SECTION = ' + selectedSection);
-   
         // prefer this section since it has the most students
         if (selectedSection === '80eda552509f705dfb333fc205ff70195735fbf0_id') {
 	  break;
         }
       }
 
-      var currentUser = req.session.username || 'Linda Kim';
-
+      var currentUser = req.session.username || 'Guest';
       var students;
       slc.api("/sections/" + selectedSection + "/studentSectionAssociations/students", "GET", req.session.token, {}, {}, function (returnedStudents) {
         students = returnedStudents; 
