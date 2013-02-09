@@ -5,21 +5,16 @@
 
 var express = require('express')
   , routes = require('./routes')
-//  , path = require('path')
-//  , fs = require('fs')
   , config = require('./config')
-  , SLC = require('./client/SLC')
-  , request = require('request');
+  , SLC = require('./client/SLC');
 
 var app = express();
 
 // Configuration
 
-var port = config.app.port;
-
 var store;
 app.configure(function(){
-  app.set('port', port);
+  app.set('port', config.app.port);
   app.set('views', __dirname + '/views');
   app.set('view engine', 'jade');
   app.use(express.bodyParser());
@@ -55,7 +50,7 @@ var clientSecret = process.env.slcclientsecret || config.api.client_secret;
 var callbackUrl = process.env.callbackUrl || config.api.oauth_uri;
 
 //OAuth config
-SLC_app = new SLC(config.api.base_url, 
+slc = new SLC(config.api.base_url, 
                   clientId, 
                   clientSecret, 
                   callbackUrl);
@@ -73,14 +68,14 @@ app.get('/logout', function(req, res) {
 });
 
 app.get('/login', function(req, res, body) {
-  var loginURL = SLC_app.getLoginURL();
+  var loginURL = slc.getLoginURL();
   res.redirect(loginURL);
 });
 
 app.get('/auth/provider/callback', function (req, res) {
   var code = req.param('code', null);
   //console.log('received callback with code ',code);
-  SLC_app.oauth({code: code}, function (token) {
+  slc.oauth({code: code}, function (token) {
       if (token !== null || token !== undefined) {
         req.session.tokenId = token;
         //console.log('received token ',token);
@@ -108,38 +103,25 @@ function loadUser(req, res, next) {
 
 app.get('/students', loadUser, function(req, res) {
   if (req.session.token) {
-    var sections = getSections(req.session.token, function(error, statusCode, rawSections) {
-      console.log('status code from SLC api: ',statusCode);
-      var returnedSections = JSON.parse(rawSections);
-    
+
+    slc.api("/sections", "GET", req.session.token, {}, {}, function (returnedSections) {
+      
+      var selectedSection; // still smoke and mirrors
       var sectionsLen = returnedSections.length;
-      var superClass = {};
       for (var i=0; i<sectionsLen; i++) {
-
-        var linksLen = returnedSections[i].links.length;
-        var testSection = returnedSections[i];
-
-	console.log('VALDI SESSION = ' +testSection.id);
-
-        if (testSection.id === '80eda552509f705dfb333fc205ff70195735fbf0_id') {
-          superClass.uniqueSectionCode = testSection.uniqueSectionCode;
-          superClass.id = testSection.id
-          superClass.sessionId = testSection.sessionId;
-          
-          for (var j=0;j<linksLen;j++) {
-            if (testSection.links[j].rel === "getStudents") {
-              superClass.rel = testSection.links[j].rel;
-              superClass.href = testSection.links[j].href;
-            }
-          }
+        selectedSection = returnedSections[i].id;
+	console.log('SECTION = ' + selectedSection);
+   
+        // prefer this section since it has the most students
+        if (selectedSection === '80eda552509f705dfb333fc205ff70195735fbf0_id') {
+	  break;
         }
       }
 
       var currentUser = req.session.username || 'Linda Kim';
 
-      var eigthGrade = superClass.href;
       var students;
-      getStudents(req.session.token, eigthGrade, function(err, statusCode, returnedStudents) {
+      slc.api("/sections/" + selectedSection + "/studentSectionAssociations/students", "GET", req.session.token, {}, {}, function (returnedStudents) {
         students = returnedStudents; 
 
         req.session.valid = 'true';
@@ -151,73 +133,4 @@ app.get('/students', loadUser, function(req, res) {
 });
 
 app.listen(app.get('port'));
-console.log("Express server listening on port %d", app.get('port'));
-
-// callbacks and functions and all that jazz
-function getSections(token, callback) {
-  var bearer = 'bearer ' + token;
-  var apiHeaders = {
-    'Accept': 'application/vnd.slc+json',
-    'Content-Type': 'application/vnd.slc+json',
-    'Authorization': bearer
-  };
-
-  var requestUrl = config.api.base_url + '/api/rest/v1/sections';
-
-  var apiOpts = {
-    headers: apiHeaders,
-    uri: requestUrl
-  }
-
-  request.get(apiOpts, function(error, response, body) {
-    if (error) {
-        console.log('some other req error',error);
-        callback(error);
-        return;
-    }
-
-    if (response.statusCode && response.statusCode !== 200) {
-      console.log('response.statusCode ',response.statusCode)
-      callback("API error");
-    }
-    
-    callback(null, response.statusCode, response.body);
-  });
-};
-
-function getStudents(token, url, callback) {
-  var bearer = 'bearer ' + token;
-  var apiHeaders = {
-    'Accept': 'application/vnd.slc+json',
-    'Content-Type': 'application/vnd.slc+json',
-    'Authorization': bearer
-  };
-
-  //var requestUrl = slcApiUri + 'api/rest/v1/students';
-  //console.log('making a call to ',url);
-
-  var apiOpts = {
-    headers: apiHeaders,
-    uri: url
-  }
-  console.log('getting students at ',url);
-
-  request.get(apiOpts, function(error, response, body) {
-    if (error) {
-        console.log('some other req error',error);
-        callback(error);
-        return;
-    }
-
-    if (response.statusCode && response.statusCode !== 200) {
-      console.log('response.statusCode ',response.statusCode)
-      callback("API error");
-    }
-   
-    var students = JSON.parse(response.body);
-
-    callback(null, response.statusCode, students);
-  });
-};
-
-
+console.log("listening on port %d", app.get('port'));
