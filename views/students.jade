@@ -13,7 +13,11 @@ block content
 
     div(data-role='content', data-theme='b')
       h2 Welcome back, #{displayName}!
-      
+      form(method="post", action="/students")
+        select(name="sectionId", onChange="this.form.submit();")
+          - each section in sections
+            - var isSelectedSection = selectedSection==section.id ? 'true' : null;
+            option(value="#{section.id}", selected=isSelectedSection ) #{section.uniqueSectionCode}
       // each student
       ul#sortable
         - each student, index in students

@@ -91,31 +91,40 @@ function loadUser(req, res, next) {
   }
 }
 
-app.get('/students', loadUser, function(req, res) {
+function studentsHandler(req,res) {
+
   if (req.session.token) {
     slc.api("/sections", "GET", req.session.token, {}, {}, function (returnedSections) {
-      var selectedSection; // still smoke and mirrors
-      var sectionsLen = returnedSections.length;
-      for (var i=0; i<sectionsLen; i++) {
-        selectedSection = returnedSections[i].id;
-        // prefer this section since it has the most students
-        if (selectedSection === '80eda552509f705dfb333fc205ff70195735fbf0_id') {
-	  break;
-        }
-      }
 
+      //for(var i=0;i<returnedSections.length;i++) console.log('before :' + returnedSections[i].uniqueSectionCode);
+      returnedSections.sort(function(a,b) {
+        var aVal = a.uniqueSectionCode.toLowerCase();
+        var bVal = b.uniqueSectionCode.toLowerCase();
+        return aVal<bVal?-1:(aVal>bVal?1:0);  
+      });
+      //for(var i=0;i<returnedSections.length;i++) console.log('after :' + returnedSections[i].uniqueSectionCode);
+
+      var selectedSection = req.param('sectionId',returnedSections[0].id);
+
+      var sections = returnedSections;
       var currentUser = req.session.username;
       var students;
       slc.api("/sections/" + selectedSection + "/studentSectionAssociations/students", "GET", req.session.token, {}, {}, function (returnedStudents) {
         students = returnedStudents; 
-
-        req.session.valid = 'true';
-        res.render('students', {'title':'Seating Chart', 'students': students, 'validSession': req.session.valid, displayName: currentUser});
+        res.render('students', {'title':'Seating Chart', 
+	                        'sections': sections, 
+				'selectedSection' : selectedSection,
+				'students': students, 
+				'validSession' : 'true',
+				'displayName': currentUser});
       });
       
     });
   }
-});
+}
+
+app.get('/students', loadUser, studentsHandler);
+app.post('/students', loadUser, studentsHandler); 
 
 app.listen(app.get('port'));
 console.log("listening on port %d", app.get('port'));
