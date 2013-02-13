@@ -6,6 +6,7 @@
 var express = require('express')
   , routes = require('./routes')
   , config = require('./config')
+  , intel = require('./intel')
   , SLC = require('./client/SLC');
 
 var app = express();
@@ -96,7 +97,6 @@ function studentsHandler(req,res) {
   if (req.session.token) {
     slc.api("/sections", "GET", req.session.token, {}, {}, function (returnedSections) {
 
-      //for(var i=0;i<returnedSections.length;i++) console.log('before :' + returnedSections[i].uniqueSectionCode);
       returnedSections.sort(function(a,b) {
         var aVal = a.uniqueSectionCode.toLowerCase();
         var bVal = b.uniqueSectionCode.toLowerCase();
@@ -111,12 +111,48 @@ function studentsHandler(req,res) {
       var students;
       slc.api("/sections/" + selectedSection + "/studentSectionAssociations/students", "GET", req.session.token, {}, {}, function (returnedStudents) {
         students = returnedStudents; 
-        res.render('students', {'title':'Seating Chart', 
-	                        'sections': sections, 
-				'selectedSection' : selectedSection,
-				'students': students, 
-				'validSession' : 'true',
-				'displayName': currentUser});
+
+        // build an index 
+	var studentIds = [];
+	for(var i=0;i<students.length;i++) {
+          studentIds.push(students[i].id);
+          students[i].riskFactor = 0; 
+	}
+
+        slc.api("/sections/" + selectedSection + "/studentSectionAssociations/students/studentGradebookEntries",
+	        "GET", req.session.token, {}, {}, function (returnedGrades) {
+
+          // sort by date desc
+          returnedGrades.sort(function(a,b) {
+            var aVal = a.dateFulfilled;
+            var bVal = b.dateFulfilled;
+            return -1 * (aVal<bVal?-1:(aVal>bVal?1:0));  
+          });
+          //for(var i=0;i<returnedGrades.length;i++) console.log(returnedGrades[i]);
+
+	  // 30 day ago
+          var monthAgo = new Date(new Date().getDate()-30);
+
+	  for(var i=0;i<returnedGrades.length;i++) {
+	    // only collecting the last month of grades
+	    //if(monthAgo > returnedGrades.dateFulfilled) {
+            //  break;
+	    //}
+
+            var studentIndex = studentIds.indexOf(returnedGrades[i].studentId);
+	    if(studentIndex==-1) {
+              continue;
+	    }
+            students[studentIndex].riskFactor += intel.findRiskFactor(returnedGrades[i]);
+	  }
+
+          res.render('students', {'title':'Seating Chart', 
+	                          'sections': sections, 
+                                  'selectedSection' : selectedSection,
+                                  'students': students, 
+                                  'validSession' : 'true',
+                                  'displayName': currentUser});
+        });
       });
       
     });
@@ -125,6 +161,12 @@ function studentsHandler(req,res) {
 
 app.get('/students', loadUser, studentsHandler);
 app.post('/students', loadUser, studentsHandler); 
+
+app.get('/test', function(req,res) {
+  slc.api(req.param('url','/students'), "GET", req.session.token, {}, {}, function (data) {
+    res.send(data);
+  });
+});
 
 app.listen(app.get('port'));
 console.log("listening on port %d", app.get('port'));
