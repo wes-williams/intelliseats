@@ -1,9 +1,12 @@
 extends jqmobile
 
+block page_scripts
+  script(src='javascripts/uiIntel.js')
+
 block content
   div(data-role='page')
     div(data-role='header', data-theme='b')
-      h1(class="studentname") Intelliseats 
+      h1(class="studentName") Intelliseats 
       | <a href="/" data-icon="home" class="ui-btn-left">Home</a>
       // if token then logout else login
       - if (validSession==='true')
@@ -13,32 +16,16 @@ block content
 
     div(data-role='content', data-theme='b')
       h2 Welcome back, #{displayName}!
-      form(method="post", action="/students")
-        select(name="sectionId", onChange="this.form.submit();")
-          - each section in sections
-            - var isSelectedSection = selectedSection==section.id ? 'true' : null;
-            option(value="#{section.id}", selected=isSelectedSection ) #{section.uniqueSectionCode}
-      // each student
-      ul#sortable
+      div(data-role="fieldcontain")
+        form(method="post", action="/students")
+          select(name="sectionId", onChange="this.form.submit();")
+            - each section in sections
+              - var isSelectedSection = selectedSection==section.id ? 'true' : null;
+              option(value="#{section.id}", selected=isSelectedSection ) #{section.uniqueSectionCode}
+          input(type="hidden", id="action", name="action", value="selectSection")
+          button(value="Save Seats", onClick="showSeatingOrder()", data-inline="true", style="float:right;")
+      ul#seatingChart
         - each student, index in students
-          - if (student.riskFactor > 15)
-            | <li class="ui-state-default ui-shadow badstudent">
-            h3(class="studentname") #{student.name.firstName} #{student.name.lastSurname}
-            img(src="/images/noun_project_1260.svg", style="width:25px;height:25px;")
-            img(src="/images/noun_project_3247.svg", class="icon")
-            | </li>
-          - else if (student.riskFactor > 7)
-            | <li class="ui-state-default ui-shadow warningstudent">
-            h3(class="studentname") #{student.name.firstName} #{student.name.lastSurname}
-            img(src="/images/noun_project_3247.svg", class="icon")
-            img(src="/images/noun_project_1260.svg", style="width:25px;height:25px;")
-            | </li>
-          - else
-            | <li id="sortable" class="ui-state-default ui-shadow goodstudent" data-shadow="true">
-            h3(class="studentname") #{student.name.firstName} #{student.name.lastSurname}
-            img(src="/images/noun_project_3247.svg", class="icon")
-            img(src="/images/noun_project_640.svg", class="icon")
-            | </li>
-
-      // put some jqmobile stuff here
+          li(id="#{student.id}", name="#{student.id}", class="ui-state-default ui-shadow #{student.overallStatus}Student", data-shadow="true")
+            h3(class="studentName") #{student.name.firstName} #{student.name.lastSurname}
 

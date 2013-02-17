@@ -1,8 +1,8 @@
-#sortable { 
+#seatingChart { 
   list-style-type: none; margin: 0; padding: 0; height: 100%; 
 }
 
-#sortable li { 
+#seatingChart li { 
   margin: 3px 3px 3px 0; 
   padding: 1px; 
   float: left; 
@@ -13,7 +13,7 @@
   border: 1px #dddddd solid;
 }
 
-.studentname {
+.studentName {
   font-family: 'Sanchez', serif;
 }
 
@@ -31,18 +31,19 @@ body {
   padding-right: 0.2em;
 }
 
-.badstudent {
+.badStudent {
   background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAIklEQVQImWP4wMBw5j0DQ8N7BoaGDwwMZxhgHBjGFEDXAgA93xglAV6k0gAAAABJRU5ErkJggg==);
   border-radius: 15px;
 }
 
-.warningstudent {
+.warningStudent {
   background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAIUlEQVQImWP48IThzIcnDDOh+AwDEmfmhycMM7EKoGgBAFFdJ51OSKBBAAAAAElFTkSuQmCC);
   border-radius: 15px;
 
 }
 
-.goodstudent {
+.goodStudent {
   background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAIUlEQVQImWOQ7Bc/I9Uv0SDVL9Eg2S9+hgHGgWFMAXQtAMouFTmCoQ0gAAAAAElFTkSuQmCC);
   border-radius: 15px;
 }
+

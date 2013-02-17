@@ -40,7 +40,21 @@ function findRiskFactor(grade) {
   return riskFactor;
 }
 
+function assessStudentStatus(student) {
+  var studentStatus;
+
+  if (student.riskFactor > 15)
+     studentStatus = 'bad';
+  else if (student.riskFactor > 7)
+    studentStatus = 'warning';
+  else
+    studentStatus = 'good';
+
+  return studentStatus;
+}
+
 var intel = {}
 intel.findRiskFactor = findRiskFactor;
+intel.assessStudentStatus = assessStudentStatus;
 
 module.exports = intel;

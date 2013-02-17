@@ -5,7 +5,7 @@ html
   link(href='http://fonts.googleapis.com/css?family=Sanchez', rel='stylesheet', type='text/css')
   meta(http-equiv="content-type", content="text/html; charset=UTF-8")
   meta(name="viewport", content="width=device-width, initial-scale=1")
-  link(rel='stylesheet', href='/stylesheets/intelliseatsmobile.css')
+  link(rel='stylesheet', href='/stylesheets/intelliseats.css')
   link(rel="stylesheet", href="http://code.jquery.com/mobile/1.2.0/jquery.mobile-1.2.0.min.css")
     
   block scripts
@@ -16,12 +16,13 @@ html
     script(src="javascripts/jquery.sparkline.js")
     script
       $(document).bind('pageinit', function() {
-        $( "#sortable" ).sortable();
-        $( "#sortable" ).disableSelection();
-        $( "#sortable" ).bind( "sortstop", function(event, ui) {
-          $('#sortable').listview('refresh');
+        $( "#seatingChart" ).sortable();
+        //$( "#seatingChart" ).disableSelection();
+        $( "#seatingChart:visible" ).bind( "sortstop", function(event, ui) {
+          $('#seatingChart').listview('refresh');
         });
       });
+    block page_scripts
 
   body
     block content

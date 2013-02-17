@@ -117,6 +117,7 @@ function studentsHandler(req,res) {
 	for(var i=0;i<students.length;i++) {
           studentIds.push(students[i].id);
           students[i].riskFactor = 0; 
+	  students[i].overallStatus='good';
 	}
 
         slc.api("/sections/" + selectedSection + "/studentSectionAssociations/students/studentGradebookEntries",
@@ -144,6 +145,7 @@ function studentsHandler(req,res) {
               continue;
 	    }
             students[studentIndex].riskFactor += intel.findRiskFactor(returnedGrades[i]);
+            students[studentIndex].overallStatus = intel.assessStudentStatus(students[studentIndex]);
 	  }
 
           res.render('students', {'title':'Seating Chart', 
