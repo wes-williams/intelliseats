@@ -110,6 +110,7 @@ function studentsHandler(req,res) {
       for(var i=0;i<returnedSections.length;i++) {
         if(selectedSection==returnedSections[i].id) {
           sectionCustom = returnedSections[i].custom;
+	  break;
 	}
       }
 
