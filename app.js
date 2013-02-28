@@ -95,7 +95,7 @@ function loadUser(req, res, next) {
 function studentsHandler(req,res) {
 
   if (req.session.token) {
-    slc.api("/sections", "GET", req.session.token, {}, {}, function (returnedSections) {
+    slc.api("/sections?includeCustom=true", "GET", req.session.token, {}, {}, function (returnedSections) {
 
       returnedSections.sort(function(a,b) {
         var aVal = a.uniqueSectionCode.toLowerCase();
@@ -106,11 +106,28 @@ function studentsHandler(req,res) {
 
       var selectedSection = req.param('sectionId',returnedSections[0].id);
 
+      var sectionCustom=null;
+      for(var i=0;i<returnedSections.length;i++) {
+        if(selectedSection==returnedSections[i].id) {
+          sectionCustom = returnedSections[i].custom;
+	}
+      }
+
       var sections = returnedSections;
       var currentUser = req.session.username;
       var students;
       slc.api("/sections/" + selectedSection + "/studentSectionAssociations/students", "GET", req.session.token, {}, {}, function (returnedStudents) {
         students = returnedStudents; 
+
+	if(sectionCustom!=null) {
+	  if(sectionCustom.seatingChart!=null && sectionCustom.seatingChart.type=="list") {
+            returnedStudents.sort(function(a,b) {
+              var aVal = sectionCustom.seatingChart.seats.indexOf(a.id);
+              var bVal = sectionCustom.seatingChart.seats.indexOf(b.id);
+              return aVal<bVal?-1:(aVal>bVal?1:0);  
+	    });
+	  }
+	}
 
         // build an index 
 	var studentIds = [];
@@ -163,6 +180,19 @@ function studentsHandler(req,res) {
 
 app.get('/students', loadUser, studentsHandler);
 app.post('/students', loadUser, studentsHandler); 
+
+app.post('/seats', loadUser, function(req,res) {
+
+  var selectedSection = req.param('sectionId');
+  var studentOrder = req.param('data').split(',');
+  var custom = {
+    "seatingChart" : { "type" : "list", "seats" : studentOrder }
+  };
+
+  slc.api('/sections/' + selectedSection + '/custom', 'POST', req.session.token, {}, custom, function (data) {
+    res.redirect('/students?sectionId='+selectedSection);
+  });
+});
 
 app.get('/test', function(req,res) {
   slc.api(req.param('url','/students'), "GET", req.session.token, {}, {}, function (data) {

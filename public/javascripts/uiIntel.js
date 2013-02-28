@@ -1,4 +1,6 @@
 function showSeatingOrder() {
   var seatAssignments = $('#seatingChart').sortable( "toArray", { attribute: 'id'} );
-  alert(seatAssignments);
+  $('#data').attr('value',seatAssignments.join(','));
+  $('#seatForm').attr('action','/seats');
+  $('#seatForm').submit();
 }

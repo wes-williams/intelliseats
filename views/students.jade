@@ -17,12 +17,12 @@ block content
     div(data-role='content', data-theme='b')
       h2 Welcome back, #{displayName}!
       div(data-role="fieldcontain")
-        form(method="post", action="/students")
+        form(id="seatForm", method="post", action="/students")
           select(name="sectionId", onChange="this.form.submit();")
             - each section in sections
               - var isSelectedSection = selectedSection==section.id ? 'true' : null;
               option(value="#{section.id}", selected=isSelectedSection ) #{section.uniqueSectionCode}
-          input(type="hidden", id="action", name="action", value="selectSection")
+          input(type="hidden", id="data", name="data", value="")
           button(value="Save Seats", onClick="showSeatingOrder()", data-inline="true", style="float:right;")
       ul#seatingChart
         - each student, index in students
