@@ -21,7 +21,7 @@ block content
           div(style="float:left")
             select(name="sectionId", onChange="this.form.submit();")
               - each section in sections
-                - var isSelectedSection = selectedSection==section.id ? 'true' : null;
+                - var isSelectedSection = selectedSection.id==section.id ? 'true' : null;
                   option(value="#{section.id}", selected=isSelectedSection ) #{section.uniqueSectionCode}
           div(style="float:left")
             select(name="seatType", data-inline="true")
@@ -33,9 +33,9 @@ block content
               option(value="Circle") Circle
               option(value="Semi-Circle") Semi-Circle
           div(style="float:left;margin-left:5px;margin;margin-top:3px")
-            input(name="seatWidth", type="text", data-inline="true", placeholder="# Width", size="7")
+            input(name="seatWidth", type="text", data-inline="true", placeholder="# Width", size="7", value="#{selectedSection.width}")
           div(style="float:left;margin-left:5px;margin;margin-top:3px")
-            input(name="seatCount", type="text", data-inline="true", placeholder="# Seats", size="7")
+            input(name="seatCount", type="text", data-inline="true", placeholder="# Seats", size="7", value="#{selectedSection.count}")
           div(style="float:left;margin-left:5px")
             input(type="hidden", id="data", name="data", value="")
             button(value="Save Seats", onClick="showSeatingOrder()",style="float:right")

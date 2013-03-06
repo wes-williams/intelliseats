@@ -104,30 +104,42 @@ function studentsHandler(req,res) {
       });
       //for(var i=0;i<returnedSections.length;i++) console.log('after :' + returnedSections[i].uniqueSectionCode);
 
-      var selectedSection = req.param('sectionId',returnedSections[0].id);
+      var selectedSection = {};
+      selectedSection.id = req.param('sectionId',returnedSections[0].id);
 
       var sectionCustom=null;
       for(var i=0;i<returnedSections.length;i++) {
-        if(selectedSection==returnedSections[i].id) {
+        if(selectedSection.id==returnedSections[i].id) {
           sectionCustom = returnedSections[i].custom;
 	  break;
 	}
       }
 
+      if(sectionCustom!=null && sectionCustom.seatingCharts!=null && sectionCustom.seatingCharts.preferred!=null) {
+        selectedSection.type = sectionCustom.seatingCharts[sectionCustom.seatingCharts.preferred].type;
+        selectedSection.flow = sectionCustom.seatingCharts[sectionCustom.seatingCharts.preferred].flow;
+        selectedSection.width = sectionCustom.seatingCharts[sectionCustom.seatingCharts.preferred].width;
+        selectedSection.count = sectionCustom.seatingCharts[sectionCustom.seatingCharts.preferred].count;
+      }
+      else {
+        selectedSection.type = '';
+        selectedSection.flow = '';
+        selectedSection.width = '';
+        selectedSection.count = '';
+      }
+
       var sections = returnedSections;
       var currentUser = req.session.username;
       var students;
-      slc.api("/sections/" + selectedSection + "/studentSectionAssociations/students", "GET", req.session.token, {}, {}, function (returnedStudents) {
+      slc.api("/sections/" + selectedSection.id + "/studentSectionAssociations/students", "GET", req.session.token, {}, {}, function (returnedStudents) {
         students = returnedStudents; 
 
-	if(sectionCustom!=null) {
-	  if(sectionCustom.seatingChart!=null && sectionCustom.seatingChart.type=="list") {
-            returnedStudents.sort(function(a,b) {
-              var aVal = sectionCustom.seatingChart.seats.indexOf(a.id);
-              var bVal = sectionCustom.seatingChart.seats.indexOf(b.id);
-              return aVal<bVal?-1:(aVal>bVal?1:0);  
-	    });
-	  }
+	if(sectionCustom!=null && sectionCustom.seatingCharts!=null && sectionCustom.seatingCharts.preferred!=null) {
+          returnedStudents.sort(function(a,b) {
+            var aVal = sectionCustom.seatingCharts[sectionCustom.seatingCharts.preferred].seats.indexOf(a.id);
+            var bVal = sectionCustom.seatingCharts[sectionCustom.seatingCharts.preferred].seats.indexOf(b.id);
+            return aVal<bVal?-1:(aVal>bVal?1:0);  
+	  });
 	}
 
         // build an index 
@@ -138,7 +150,7 @@ function studentsHandler(req,res) {
 	  students[i].overallStatus='good';
 	}
 
-        slc.api("/sections/" + selectedSection + "/studentSectionAssociations/students/studentGradebookEntries",
+        slc.api("/sections/" + selectedSection.id + "/studentSectionAssociations/students/studentGradebookEntries",
 	        "GET", req.session.token, {}, {}, function (returnedGrades) {
 
           // sort by date desc
@@ -202,7 +214,7 @@ app.post('/seats', loadUser, function(req,res) {
     }; 
 
     if(!custom.seatingCharts) {
-      custom.seatingCharts = {};
+      custom.seatingCharts = { "preferred" : seatingKey };
     }
     custom.seatingCharts[seatingKey] = seatingValue;
 
