@@ -185,13 +185,30 @@ app.post('/students', loadUser, studentsHandler);
 app.post('/seats', loadUser, function(req,res) {
 
   var selectedSection = req.param('sectionId');
+  var seatType = req.param('seatType');
+  var seatFlow = req.param('seatFlow');
+  var seatWidth = req.param('seatWidth');
+  var seatCount = req.param('seatCount');
   var studentOrder = req.param('data').split(',');
-  var custom = {
-    "seatingChart" : { "type" : "list", "seats" : studentOrder }
-  };
 
-  slc.api('/sections/' + selectedSection + '/custom', 'POST', req.session.token, {}, custom, function (data) {
-    res.redirect('/students?sectionId='+selectedSection);
+  slc.api(req.param('url','/sections/'+selectedSection+'/custom'), "GET", req.session.token, {}, {}, function (custom) {
+    var seatingKey = seatType +'_' + seatFlow + '_' +seatWidth + '_' + seatCount;   
+    var seatingValue = {
+       "type" : seatType, 
+       "flow" : seatFlow, 
+       "width" : seatWidth, 
+       "count" : seatCount, 
+       "seats" : studentOrder 
+    }; 
+
+    if(!custom.seatingCharts) {
+      custom.seatingCharts = {};
+    }
+    custom.seatingCharts[seatingKey] = seatingValue;
+
+    slc.api('/sections/' + selectedSection + '/custom', 'POST', req.session.token, {}, custom, function (data) {
+      res.redirect('/students?sectionId='+selectedSection);
+    });
   });
 });
 

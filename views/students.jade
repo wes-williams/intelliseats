@@ -24,18 +24,18 @@ block content
                 - var isSelectedSection = selectedSection==section.id ? 'true' : null;
                   option(value="#{section.id}", selected=isSelectedSection ) #{section.uniqueSectionCode}
           div(style="float:left")
-            select(name="SeatType", data-inline="true")
+            select(name="seatType", data-inline="true")
               option(value="Desk") Desk 
               option(value="Tables") Tables 
           div(style="float:left")
-            select(name="SeatFlow", data-inline="true")
+            select(name="seatFlow", data-inline="true")
               option(value="Grid") Grid
               option(value="Circle") Circle
               option(value="Semi-Circle") Semi-Circle
-          div(style="float:left")
-            select(name="SeatTypeSize", data-inline="true")
-              option(value="4") 4 Wide 
-              option(value="5") 5 Wide 
+          div(style="float:left;margin-left:5px;margin;margin-top:3px")
+            input(name="seatWidth", type="text", data-inline="true", placeholder="# Width", size="7")
+          div(style="float:left;margin-left:5px;margin;margin-top:3px")
+            input(name="seatCount", type="text", data-inline="true", placeholder="# Seats", size="7")
           div(style="float:left;margin-left:5px")
             input(type="hidden", id="data", name="data", value="")
             button(value="Save Seats", onClick="showSeatingOrder()",style="float:right")
